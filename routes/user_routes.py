@@ -2,6 +2,7 @@ from flask import Blueprint, request
 from controllers import user_controller
 
 user = Blueprint("user", __name__)
+
 @user.route('/user/add', methods=["POST"])
 def add_user():
     return user_controller.add_user(request)

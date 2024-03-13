@@ -6,41 +6,44 @@ from db import db
 from models.users import user_schema, users_schema, Users
 from controllers.auth_controller import delete_user_token
 from util.reflection import populate_object
-from lib.authenticate import auth, auth_with_return
+from lib.authenticate import auth
 
 # @auth
 def add_user(request):
-    req_data = request.form if request.form else request.json
+    req_data = request.form if request.form else request.get_json()
 
     if not req_data:
-        return jsonify("Please enter all required fields")
+        return jsonify({"message" : "please enter all required fields"}), 400
 
     new_user = Users.new_user()
 
     populate_object(new_user, req_data)
-
     new_user.password = generate_password_hash(new_user.password).decode("utf8")
 
-    db.session.add(new_user)
-    db.session.commit()
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+    except:
+        db.session.rollback()
+        return jsonify({"message": "unable to create record"}), 400
 
-    return jsonify('User Created'), 200
+    return jsonify({"message": "user created", "results": user_schema.dump(new_user)}), 201
 
 @auth
 def get_all_active_users(request):
     users = db.session.query(Users).filter(Users.active == True).all()
 
     if not users:
-        return jsonify('No Active Users Exist'), 404
+        return jsonify({"message" : "no active users exist"}), 404
     else:
-        return jsonify(users_schema.dump(users)), 200
+        return jsonify({"message" : "fetched users", "results" : users_schema.dump(users)}), 200
 
 @auth
 def get_users_by_id(request, id):
     user = db.session.query(Users).filter(Users.user_id == id).first()
 
     if not user:
-        return jsonify("That user doesn't exist"), 404
+        return jsonify({"message" : "that user doesn't exist"}), 404
 
     else:
         return jsonify(user_schema.dump(user)), 200
@@ -56,7 +59,7 @@ def update_user(request, id):
 
     db.session.commit()
 
-    return jsonify('User Updated'), 200
+    return jsonify({"message": "user updated", "results" : user_schema.dump(existing_user)}), 201
 
 @auth
 def user_status(request, id):
@@ -67,21 +70,20 @@ def user_status(request, id):
         db.session.commit()
 
         return jsonify(user_schema.dump(user_data)), 200
-    return jsonify({"message": "No user found"}), 404
+    return jsonify({"message": "no user found"}), 404
 
-@auth_with_return
+@auth
 def delete_user(request, id, auth_info):
 
     user = db.session.query(Users).filter(Users.user_id == id).first()
 
     if not user:
-        return jsonify("That user doesn't exist"), 404
+        return jsonify({"message" : "that user doesn't exist"}), 404
 
     if id == str(auth_info.user_id):
-        return jsonify("Can't delete your self"), 404
+        return jsonify({"message" : "can't delete yourself"}), 404
 
     delete_user_token(id)
-    delete_all_user_links(request, id)
     db.session.delete(user)
     db.session.commit()
-    return jsonify("User Deleted")
+    return jsonify({"message" : "user deleted"})

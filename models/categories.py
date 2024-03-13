@@ -1,6 +1,7 @@
 import marshmallow as ma
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
+from datetime import datetime
 
 from db import db
 
@@ -11,7 +12,7 @@ class Categories(db.Model):
     amount = db.Column(db.String(), nullable=False )
     category_name = db.Column(db.String(), nullable=False)
     color = db.Column(db.String())
-    start_date = db.Column(db.String(), nullable=False)
+    start_date = db.Column(db.String(), nullable=False, default=datetime.today().strftime('%Y-%m-%d'))
     end_date = db.Column(db.String())
 
     def __init__(self, amount, category_name, color, start_date, end_date):
@@ -28,5 +29,5 @@ class CatergoriesSchema(ma.Schema):
     class Meta:
         fields = ['catergory_id', 'amount', 'category_name', 'color', 'start_date', 'end_date']
 
-user_schema = CatergoriesSchema()
-users_schema = CatergoriesSchema(many=True)
+category_schema = CatergoriesSchema()
+categories_schema = CatergoriesSchema(many=True)
