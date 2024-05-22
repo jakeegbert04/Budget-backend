@@ -2,9 +2,11 @@ from flask import Flask
 from db import *
 import os
 from flask_marshmallow import Marshmallow
+from flask_cors import CORS
 
 from routes.auth_routes import auth
 from routes.user_routes import user
+from routes.category_routes import category
 
 database_pre = os.environ.get("DATABASE_PRE")
 database_addr = os.environ.get("DATABASE_ADDR")
@@ -19,10 +21,12 @@ app.config["SQLALCHEMY_DATABASE_URI"] = f"{database_pre}{database_user}:{databas
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 init_db(app, db)
+CORS(app)
 ma = Marshmallow(app)
 
 app.register_blueprint(user)
 app.register_blueprint(auth)
+app.register_blueprint(category)
 
 def create_all():
     with app.app_context():

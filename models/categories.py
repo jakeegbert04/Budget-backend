@@ -12,22 +12,24 @@ class Categories(db.Model):
     amount = db.Column(db.String(), nullable=False )
     category_name = db.Column(db.String(), nullable=False)
     color = db.Column(db.String())
-    start_date = db.Column(db.String(), nullable=False, default=datetime.today().strftime('%Y-%m-%d'))
+    start_date = db.Column(db.String(), nullable=False, default=lambda: datetime.today().strftime('%Y-%m-%d'))
     end_date = db.Column(db.String())
+    active = db.Column(db.Boolean())
 
-    def __init__(self, amount, category_name, color, start_date, end_date):
+    def __init__(self, amount, category_name, color, start_date, end_date, active):
         self.amount = amount
         self.category_name = category_name
         self.color= color
         self.start_date = start_date
         self.end_date = end_date
+        self.active = active
 
-    def new_user():
-        return Categories( "", "", "", "", "")
+    def new_category():
+        return Categories( "", "", "", "", "", True)
 
 class CatergoriesSchema(ma.Schema):
     class Meta:
-        fields = ['catergory_id', 'amount', 'category_name', 'color', 'start_date', 'end_date']
+        fields = ['category_id', 'amount', 'category_name', 'color', 'start_date', 'end_date', "active"]
 
 category_schema = CatergoriesSchema()
 categories_schema = CatergoriesSchema(many=True)

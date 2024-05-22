@@ -61,7 +61,7 @@ def auth_token_remove(request, auth_info):
 
 @auth
 def delete_user_token(user_id):
-    auth_data = db.session.query(AuthTokens).filter(AuthTokens.user_id == user_id).first()
+    auth_data = db.session.query(AuthTokens).filter(AuthTokens.user.user_id == user_id).first()
     
     if auth_data:
         db.session.delete(auth_data)

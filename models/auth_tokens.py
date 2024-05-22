@@ -1,6 +1,7 @@
 import marshmallow as ma
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
+
 from models.users import UsersSchema
 
 from db import db

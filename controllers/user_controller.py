@@ -86,4 +86,4 @@ def delete_user(request, id, auth_info):
     delete_user_token(id)
     db.session.delete(user)
     db.session.commit()
-    return jsonify({"message" : "user deleted"})
+    return jsonify({"message" : "user deleted"}), 200
