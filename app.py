@@ -8,6 +8,7 @@ from routes.auth_routes import auth
 from routes.user_routes import user
 from routes.category_routes import category
 from routes.account_routes import account
+from routes.transaction_routes import transaction
 
 database_pre = os.environ.get("DATABASE_PRE")
 database_addr = os.environ.get("DATABASE_ADDR")
@@ -29,6 +30,7 @@ app.register_blueprint(auth)
 app.register_blueprint(user)
 app.register_blueprint(category)
 app.register_blueprint(account)
+app.register_blueprint(transaction)
 
 def create_all():
     with app.app_context():

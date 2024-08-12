@@ -1,5 +1,4 @@
 from flask import request, jsonify
-from flask_bcrypt import generate_password_hash
 
 from db import db
 from models.accounts import account_schema, accounts_schema, Accounts
@@ -17,12 +16,12 @@ def add_account(request):
 
     populate_object(new_account, req_data)
     
-    # try:
-    db.session.add(new_account)
-    db.session.commit()
-    # except:
-    #     db.session.rollback()
-    #     return jsonify({"message":"unable to create record"}), 400
+    try:
+        db.session.add(new_account)
+        db.session.commit()
+    except:
+        db.session.rollback()
+        return jsonify({"message":"unable to create record"}), 400
     
     return jsonify({"message": "account created", "results": account_schema.dump(new_account)}), 201
 
