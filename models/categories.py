@@ -27,9 +27,9 @@ class Categories(db.Model):
     def new_category():
         return Categories( "", "", "", "", "", True)
 
-class CatergoriesSchema(ma.Schema):
+class CategoriesSchema(ma.Schema):
     class Meta:
         fields = ['category_id', 'amount', 'category_name', 'color', 'start_date', 'end_date', "active"]
 
-category_schema = CatergoriesSchema()
-categories_schema = CatergoriesSchema(many=True)
+category_schema = CategoriesSchema()
+categories_schema = CategoriesSchema(many=True)

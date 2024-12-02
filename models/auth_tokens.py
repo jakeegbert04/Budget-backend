@@ -19,8 +19,8 @@ class AuthTokens(db.Model):
         
 class AuthTokenSchema(ma.Schema):
     class Meta:
-        fields = ["auth_token", "user_id", "expiration"]
+        fields = ["auth_token", "user_id", "expiration", "user"]
 
-    user = ma.fields.Nested(UsersSchema(only=("role", "first_name", "user_id")))
+    user = ma.fields.Nested(UsersSchema(only=("roles", "first_name", "user_id")))
 
 auth_token_schema = AuthTokenSchema()

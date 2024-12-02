@@ -11,7 +11,7 @@ class Transaction(db.Model):
 
     transaction_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("Users.user_id"), nullable=False)
-    category_id = db.Column(UUID(as_uuid=True), db.ForeignKey("Category.category_id"), nullable=False)
+    category_id = db.Column(UUID(as_uuid=True), db.ForeignKey("Categories.category_id"), nullable=False)
     account_id = db.Column(UUID(as_uuid=True), db.ForeignKey("Accounts.account_id"), nullable=False)
     amount = db.Column(db.String(), nullable=False)
     description = db.Column(db.String())

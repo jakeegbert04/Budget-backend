@@ -2,7 +2,7 @@ from flask import request, jsonify
 from flask_bcrypt import generate_password_hash
 
 from db import db
-from models.transactions import transaction_schema, transactions_schema, Transactions
+from models.transaction import transaction_schema, transactions_schema, Transaction
 from util.reflection import populate_object
 from lib.authenticate import auth
 
@@ -13,7 +13,7 @@ def add_transaction(request):
     if not req_data:
         return jsonify({"message" : "please enter all required fields"}), 400
     
-    new_transaction = Transactions.new_transaction()
+    new_transaction = Transaction.new_transaction()
 
     populate_object(new_transaction, req_data)
     
@@ -29,7 +29,7 @@ def add_transaction(request):
 @auth
 def update_transaction(request, id):
     req_data = request.form if request.form else request.json
-    existing_transaction = db.session.query(Transactions).filter(Transactions.transaction_id == id).first()
+    existing_transaction = db.session.query(Transaction).filter(Transaction.transaction_id == id).first()
 
     if not existing_transaction:
         return jsonify({"message":"no existing transaction"})
@@ -40,7 +40,7 @@ def update_transaction(request, id):
 
 @auth
 def get_all_active_transactions(request):
-    transactions = db.session.query(Transactions).all()
+    transactions = db.session.query(Transaction).all()
 
     if not transactions:
         return jsonify({"message": "no transactions exist"}), 404
@@ -49,7 +49,7 @@ def get_all_active_transactions(request):
 
 @auth
 def get_transaction_by_id(request, id):
-    transaction = db.session.query(Transactions).filter(Transactions.transaction_id == id).first()
+    transaction = db.session.query(Transaction).filter(Transaction.transaction_id == id).first()
 
     if not transaction:
         return jsonify({"message": "transaction doesn't exist"}),404

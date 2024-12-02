@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 
 from db import db
 
-from app.models.roles_users_xref import roles_users_association_table
+from models.roles_users_xref import roles_users_association_table
 
 
 class Roles(db.Model):

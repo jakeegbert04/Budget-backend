@@ -4,6 +4,8 @@ from sqlalchemy.dialects.postgresql import UUID
 
 from db import db
 
+from models.roles_users_xref import roles_users_association_table
+
 class Users(db.Model):
     __tablename__ = "Users"
 
@@ -15,7 +17,10 @@ class Users(db.Model):
     password = db.Column(db.String(), nullable=False)
     active = db.Column(db.Boolean(), default=True)
 
-    def __init__(self, first_name, last_name, email, password, active):
+    roles = db.relationship("Roles", secondary=roles_users_association_table, back_populates="users")
+
+    def __init__(self, username, first_name, last_name, email, password, active):
+        self.username = username
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
@@ -23,13 +28,12 @@ class Users(db.Model):
         self.active = active
 
     def new_user():
-        return Users( "", "", "", "", True)
+        return Users( "", "", "", "", "", True)
 
 class UsersSchema(ma.Schema):
     class Meta:
-        fields = ['user_id', 'first_name', 'last_name', 'email', 'role', 'phone', 'is_photographer', 'bio', 'about_me', 'active', 'links_xref', 'comments_xref']
-    links_xref = ma.fields.Nested("LinksXrefSchema", many=True)
-    comments_xref = ma.fields.Nested("CommentsXrefSchema", many=True)
+        fields = ['user_id', "username", 'first_name', 'last_name', 'email', "active", "roles"]
+    roles = ma.fields.List(ma.fields.String())
 
 user_schema = UsersSchema()
 users_schema = UsersSchema(many=True)
