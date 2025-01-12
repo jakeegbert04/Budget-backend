@@ -31,20 +31,22 @@ def auth_token():
     if not valid_password:
         return jsonify({"message": "invalid Login"}), 401
 
-    existing_tokens = db.session.query(AuthTokens).filter(AuthTokens.user_id == user_data.user_id).all()
+    existing_token = (
+        db.session.query(AuthTokens)
+        .filter(AuthTokens.user_id == user_data.user_id, AuthTokens.expiration > datetime.now())
+        .first()
+    )
+
+    if existing_token:
+        return jsonify({"message": {"auth_token": auth_token_schema.dump(existing_token)}})
 
     expiry = datetime.now() + timedelta(hours=12)
-
-    if existing_tokens:
-        for token in existing_tokens:
-            if token.expiration < datetime.now():
-                db.session.delete(token)
-
     new_token = AuthTokens(user_data.user_id, expiry)
     db.session.add(new_token)
     db.session.commit()
 
     return jsonify({"message": {"auth_token": auth_token_schema.dump(new_token)}})
+
 
 @auth
 def auth_token_remove(request, auth_info):

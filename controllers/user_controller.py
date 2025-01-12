@@ -6,9 +6,9 @@ from db import db
 from models.users import user_schema, users_schema, Users
 from controllers.auth_controller import delete_user_token
 from util.reflection import populate_object
-from lib.authenticate import auth
+from lib.authenticate import auth, auth_with_return
 
-# @auth
+@auth
 def add_user(request):
     req_data = request.form if request.form else request.get_json()
 
@@ -72,7 +72,7 @@ def user_status(request, id):
         return jsonify(user_schema.dump(user_data)), 200
     return jsonify({"message": "no user found"}), 404
 
-@auth
+@auth_with_return
 def delete_user(request, id, auth_info):
 
     user = db.session.query(Users).filter(Users.user_id == id).first()

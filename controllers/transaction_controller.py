@@ -3,6 +3,8 @@ from flask_bcrypt import generate_password_hash
 
 from db import db
 from models.transaction import transaction_schema, transactions_schema, Transaction
+from models.users import Users
+from models.categories import Categories
 from util.reflection import populate_object
 from lib.authenticate import auth
 
@@ -10,19 +12,31 @@ from lib.authenticate import auth
 def add_transaction(request):
     req_data = request.form if request.form else request.get_json()
 
+    user_id = req_data["user_id"]
+    category_id = req_data["category_id"]
+
+    print(user_id)
+
     if not req_data:
         return jsonify({"message" : "please enter all required fields"}), 400
     
+    user_id_qury = db.session.query(Users).filter(Users.user_id == user_id).first()
+
+    if not user_id_qury:
+        return jsonify({"message" : "user not found"}), 401
+    
+    category_id_query = db.session.query(Categories).filter(Categories.category_id == category_id).first()
+
+    if not category_id_query:
+        return jsonify({"message" : "category not found"}), 401
+
     new_transaction = Transaction.new_transaction()
+
 
     populate_object(new_transaction, req_data)
     
-    try:
-        db.session.add(new_transaction)
-        db.session.commit()
-    except:
-        db.session.rollback()
-        return jsonify({"message":"unable to create record"}), 400
+    db.session.add(new_transaction)
+    db.session.commit()
     
     return jsonify({"message": "transaction created", "results": transaction_schema.dump(new_transaction)}), 201
 
@@ -58,7 +72,7 @@ def get_transaction_by_id(request, id):
 
 @auth
 def transaction_status(request, id):
-    transaction_data = db.session.query(Transactions).filter(Transactions.transaction_id == id).first()
+    transaction_data = db.session.query(Transaction).filter(Transaction.transaction_id == id).first()
 
     if transaction_data:
         transaction_data.active = not transaction_data.active
@@ -69,7 +83,7 @@ def transaction_status(request, id):
 
 @auth
 def delete_transaction(request, id):
-    transaction = db.session.query(Transactions).filter(Transactions.transaction_id == id).first()
+    transaction = db.session.query(Transaction).filter(Transaction.transaction_id == id).first()
 
     if not transaction:
         return jsonify({"message":"transaction doesn't exist"}), 404

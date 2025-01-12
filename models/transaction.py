@@ -16,26 +16,26 @@ class Transaction(db.Model):
     amount = db.Column(db.String(), nullable=False)
     description = db.Column(db.String())
     date = db.Column(db.DateTime, nullable=False)
-    start_date = db.Column(db.DateTime)
-    end_date = db.Column(db.DateTime)
+    start_date = db.Column(db.DateTime, nullable=False)
+    end_date = db.Column(db.DateTime, nullable=False)
     frequency = db.Column(db.String())
     active = db.Column(db.Boolean())
 
-    def __init__(self, transaction_id, user_id, category_id, account_id, amount, description, date, start_date, end_date, frequency, active ):
+    def __init__(self, user_id, category_id, account_id, amount, description, date, start_date, end_date, frequency, active ):
 
-        self.transaction_id = transaction_id
         self.user_id = user_id
         self.category_id = category_id
         self.account_id = account_id
         self.amount = amount
         self.description = description
+        self.date = date
         self.start_date = start_date
         self.end_date = end_date
         self.frequency = frequency
         self.active = active
 
-    def new_account():
-        return Transaction( "", "", "", "", "", "", "", "", "", "", True)
+    def new_transaction():
+        return Transaction( "", "", "", "", "", "", "", "", "", True)
 
 class TransactionSchema(ma.Schema):
     class Meta:
