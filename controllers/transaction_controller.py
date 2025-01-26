@@ -2,7 +2,7 @@ from flask import request, jsonify
 from flask_bcrypt import generate_password_hash
 
 from db import db
-from models.transaction import transaction_schema, transactions_schema, Transaction
+from models.transactions import transaction_schema, transactions_schema, Transactions
 from models.users import Users
 from models.categories import Categories
 from util.reflection import populate_object
@@ -14,8 +14,7 @@ def add_transaction(request):
 
     user_id = req_data["user_id"]
     category_id = req_data["category_id"]
-
-    print(user_id)
+    amount = req_data["amount"]
 
     if not req_data:
         return jsonify({"message" : "please enter all required fields"}), 400
@@ -29,8 +28,10 @@ def add_transaction(request):
 
     if not category_id_query:
         return jsonify({"message" : "category not found"}), 401
+    
+    category_id_query.amount = int(category_id_query.amount) - int(amount)
 
-    new_transaction = Transaction.new_transaction()
+    new_transaction = Transactions.new_transaction()
 
 
     populate_object(new_transaction, req_data)
@@ -43,7 +44,7 @@ def add_transaction(request):
 @auth
 def update_transaction(request, id):
     req_data = request.form if request.form else request.json
-    existing_transaction = db.session.query(Transaction).filter(Transaction.transaction_id == id).first()
+    existing_transaction = db.session.query(Transactions).filter(Transactions.transaction_id == id).first()
 
     if not existing_transaction:
         return jsonify({"message":"no existing transaction"})
@@ -54,7 +55,7 @@ def update_transaction(request, id):
 
 @auth
 def get_all_active_transactions(request):
-    transactions = db.session.query(Transaction).all()
+    transactions = db.session.query(Transactions).all()
 
     if not transactions:
         return jsonify({"message": "no transactions exist"}), 404
@@ -63,7 +64,7 @@ def get_all_active_transactions(request):
 
 @auth
 def get_transaction_by_id(request, id):
-    transaction = db.session.query(Transaction).filter(Transaction.transaction_id == id).first()
+    transaction = db.session.query(Transactions).filter(Transactions.transaction_id == id).first()
 
     if not transaction:
         return jsonify({"message": "transaction doesn't exist"}),404
@@ -72,7 +73,7 @@ def get_transaction_by_id(request, id):
 
 @auth
 def transaction_status(request, id):
-    transaction_data = db.session.query(Transaction).filter(Transaction.transaction_id == id).first()
+    transaction_data = db.session.query(Transactions).filter(Transactions.transaction_id == id).first()
 
     if transaction_data:
         transaction_data.active = not transaction_data.active
@@ -83,7 +84,7 @@ def transaction_status(request, id):
 
 @auth
 def delete_transaction(request, id):
-    transaction = db.session.query(Transaction).filter(Transaction.transaction_id == id).first()
+    transaction = db.session.query(Transactions).filter(Transactions.transaction_id == id).first()
 
     if not transaction:
         return jsonify({"message":"transaction doesn't exist"}), 404

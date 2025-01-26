@@ -2,6 +2,7 @@ import marshmallow as ma
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
+from models.transactions import TransactionSchema
 
 from db import db
 
@@ -16,6 +17,8 @@ class Categories(db.Model):
     end_date = db.Column(db.String())
     active = db.Column(db.Boolean())
 
+    transaction = db.relationship('Transactions', back_populates='category')
+
     def __init__(self, amount, category_name, color, start_date, end_date, active):
         self.amount = amount
         self.category_name = category_name
@@ -29,7 +32,9 @@ class Categories(db.Model):
 
 class CategoriesSchema(ma.Schema):
     class Meta:
-        fields = ['category_id', 'amount', 'category_name', 'color', 'start_date', 'end_date', "active"]
-
+        fields = ['category_id', 'amount', 'category_name', 'color', 'start_date', 'end_date', "transaction", "active"]
+        
+    transaction = ma.fields.Nested("TransactionSchema", many=True, exclude=("category",))
+        
 category_schema = CategoriesSchema()
 categories_schema = CategoriesSchema(many=True)
