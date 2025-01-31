@@ -18,6 +18,7 @@ class Users(db.Model):
     active = db.Column(db.Boolean(), default=True)
 
     roles = db.relationship("Roles", secondary=roles_users_association_table, back_populates="users")
+    auth_tokens = db.relationship('AuthTokens', back_populates='user', cascade="all, delete")
 
     def __init__(self, username, first_name, last_name, email, password, active):
         self.username = username

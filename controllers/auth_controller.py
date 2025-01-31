@@ -7,7 +7,23 @@ from datetime import datetime, timedelta
 from models.auth_tokens import AuthTokens, auth_token_schema
 from lib.authenticate import auth
 
+def cleanup_expired_tokens():
+    """Remove all expired tokens from the database"""
+    expired_tokens = (
+        db.session.query(AuthTokens)
+        .filter(AuthTokens.expiration < datetime.now())
+        .all()
+    )
+    
+    for token in expired_tokens:
+        db.session.delete(token)
+    
+    db.session.commit()
+
+
 def auth_token():
+    cleanup_expired_tokens()
+
     token_req = request.get_json()
 
     fields = ['email', 'password']
@@ -38,14 +54,14 @@ def auth_token():
     )
 
     if existing_token:
-        return jsonify({"message": {"auth_token": auth_token_schema.dump(existing_token)}})
+        return jsonify({"message": {"auth_token": auth_token_schema.dump(existing_token)}}), 200
 
     expiry = datetime.now() + timedelta(hours=12)
     new_token = AuthTokens(user_data.user_id, expiry)
     db.session.add(new_token)
     db.session.commit()
 
-    return jsonify({"message": {"auth_token": auth_token_schema.dump(new_token)}})
+    return jsonify({"message": {"auth_token": auth_token_schema.dump(new_token)}}), 201
 
 
 @auth
