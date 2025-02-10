@@ -38,7 +38,7 @@ def create_app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     init_db(app, db)
-    CORS(app)
+    CORS(app, supports_credentials=True)
     Marshmallow(app)
     Bcrypt(app)
 
