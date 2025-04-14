@@ -1,9 +1,9 @@
 import os
+
 from flask import Flask
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
-
 from db import db, init_db
 import config
 
@@ -19,12 +19,11 @@ from routes.transaction_routes import transaction
 
 from lib.demo_data.roles_demo_data import add_roles
 
+# Initialize extensions once
+ma = Marshmallow()
+bcrypt = Bcrypt()
 
 def create_app():
-    """
-    Application factory for local use.
-    Initializes app, configures database, and registers blueprints.
-    """
     app = Flask(__name__)
     
     database_pre = os.environ.get("DATABASE_PRE")
@@ -34,13 +33,16 @@ def create_app():
     database_name = os.environ.get("DATABASE_NAME")
     database_pass = os.environ.get("DATABASE_PASS")
     
+    if not all([database_pre, database_addr, database_user, database_port, database_name, database_pass]):
+        raise ValueError("Database environment variables are not fully configured.")
+    
     app.config["SQLALCHEMY_DATABASE_URI"] = f"{database_pre}{database_user}:{database_pass}@{database_addr}:{database_port}/{database_name}"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     init_db(app, db)
     CORS(app, supports_credentials=True)
-    Marshmallow(app)
-    Bcrypt(app)
+    ma.init_app(app)
+    bcrypt.init_app(app)
 
     app.register_blueprint(auth)
     app.register_blueprint(user)
@@ -53,9 +55,6 @@ def create_app():
 
 
 def create_all(app):
-    """
-    Sets up database schema and adds a super admin user if it does not exist.
-    """
     with app.app_context():
         print("Creating tables...")
         db.create_all()
@@ -74,7 +73,7 @@ def create_all(app):
             while not newpw:
                 newpw = input(f'Enter a password for {su_name}: ')
 
-            hashed_password = Bcrypt(app).generate_password_hash(newpw).decode("utf8")
+            hashed_password = bcrypt.generate_password_hash(newpw).decode("utf8")
             record = Users(
                 username=config.su_username,
                 first_name=config.su_first_name,
@@ -92,7 +91,6 @@ def create_all(app):
             print(f"{su_name} user already exists!")
 
         print("All done.")
-
 
 app = create_app()
 

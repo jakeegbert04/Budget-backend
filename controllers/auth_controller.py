@@ -20,7 +20,7 @@ def cleanup_expired_tokens():
     db.session.commit()
 
 def auth_token():
-    cleanup_expired_tokens()
+    # cleanup_expired_tokens()
     token_req = request.get_json()
     
     fields = ['email', 'password']
@@ -52,16 +52,24 @@ def auth_token():
 
         print("auth token", new_token.auth_token)
         response = make_response({"message": "Auth Success", "result": {"auth_info": auth_token_schema.dump(new_token), "user_info": user_schema.dump(user_data)}}, 201)
-        response.set_cookie("_sid", str(new_token.auth_token), expires=new_token.expiration, httponly=True, secure=True, samesite="None")
+        response.set_cookie("_sid", new_token.auth_token, expires=new_token.expiration, httponly=True, samesite="None")
         return response
     return response, 201
 
 def validate_session():
-    retrieved_cookie = request.cookies.get('set')
-    print("Headers: ", request.headers)
-    print("All Cookies: ", request.cookies)
-    print("Retrieved Cookie: ", retrieved_cookie)
-    # return retrieved_cookie
+    retrieved_cookie = request.cookies.get('_sid')
+    if not retrieved_cookie:
+        return jsonify({"message": "No valid session"}), 401
+
+    token_data = db.session.query(AuthTokens).filter(
+        AuthTokens.auth_token == retrieved_cookie,
+        AuthTokens.expiration > datetime.now()
+    ).first()
+
+    if not token_data:
+        return jsonify({"message": "Invalid or expired session"}), 401
+
+    return jsonify({"message": "Session valid", "user_id": token_data.user_id}), 200
 
 # def validate_session():
 #     auth_token = request.cookies.get("auth_token")
@@ -80,7 +88,8 @@ def validate_session():
 
 @auth_with_return
 def auth_check_login(self, auth_info):
-    user_data = db.session.query(Users).filter(Users.user_id == auth_info.user.user_id).first()
+    print(auth_info, "auth_info")
+    # user_data = db.session.query(Users).filter(Users.user_id == auth_info.user.user_id).first()
 
     return jsonify({"message": "success", "results": {"auth_info": self.model.schema.dump(auth_info), "user_info": Users.schema.dump(user_data)}}), 200
 
