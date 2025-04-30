@@ -1,5 +1,5 @@
 import functools
-from flask import jsonify
+from flask import jsonify, request
 from datetime import datetime
 from uuid import UUID
 
@@ -14,8 +14,14 @@ def validate_uuid4(uuid_string):
     except:
         return False
 
-def validate_token(arg_zero):
-    auth_token = arg_zero.headers['auth_token']
+def validate_token(req):
+    if not req:
+        req = request
+    
+    if 'auth_token' not in req.headers:
+        return False
+        
+    auth_token = req.headers['auth_token']
 
     if not auth_token or not validate_uuid4(auth_token):
         return False
@@ -34,7 +40,7 @@ def fail_response():
 def auth(func):
     @functools.wraps(func)
     def wrapper_auth_return(*args, **kwargs):
-        auth_info = validate_token(args[0])
+        auth_info = validate_token(args[0] if args else None)
 
         if auth_info:
             return func(*args, **kwargs)
@@ -45,7 +51,7 @@ def auth(func):
 def auth_with_return(func):
     @functools.wraps(func)
     def wrapper_auth_return(*args, **kwargs):
-        auth_info = validate_token(args[0])
+        auth_info = validate_token(args[0] if args else None)
 
         if auth_info:
             kwargs["auth_token"] = auth_info

@@ -19,7 +19,6 @@ from routes.transaction_routes import transaction
 
 from lib.demo_data.roles_demo_data import add_roles
 
-# Initialize extensions once
 ma = Marshmallow()
 bcrypt = Bcrypt()
 
