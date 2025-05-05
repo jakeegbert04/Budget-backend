@@ -14,25 +14,24 @@ def validate_uuid4(uuid_string):
     except:
         return False
 
-def validate_token(req):
+def validate_token(req=None):
     if not req:
         req = request
-    
-    if 'auth_token' not in req.headers:
-        return False
-        
-    auth_token = req.headers['auth_token']
+
+    auth_token = req.headers.get('auth_token')
+
+    if not auth_token:
+        auth_token = req.cookies.get('auth_token')
 
     if not auth_token or not validate_uuid4(auth_token):
         return False
 
-    existing_token = db.session.query(AuthTokens).filter(AuthTokens.auth_token == auth_token).first()
+    token_record = db.session.query(AuthTokens).filter(
+        AuthTokens.auth_token == auth_token,
+        AuthTokens.expiration > datetime.now()
+    ).first()
 
-    if existing_token:
-        if existing_token.expiration > datetime.now():
-            return existing_token
-    else:
-        return False
+    return token_record if token_record else False
 
 def fail_response():
     return jsonify({"message": "authentication required"}), 401
@@ -51,10 +50,10 @@ def auth(func):
 def auth_with_return(func):
     @functools.wraps(func)
     def wrapper_auth_return(*args, **kwargs):
-        auth_info = validate_token(args[0] if args else None)
+        auth_token_record = validate_token(args[0] if args else None)
 
-        if auth_info:
-            kwargs["auth_token"] = auth_info
+        if auth_token_record:
+            kwargs["auth_info"] = auth_token_record.user  # <-- Return the user, not the token
             return func(*args, **kwargs)
         else:
             return fail_response()

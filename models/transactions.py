@@ -3,6 +3,7 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 
 from models.users import UsersSchema
+from models.accounts import AccountsSchema
 from db import db
 
 class Transactions(db.Model):
@@ -21,6 +22,7 @@ class Transactions(db.Model):
     active = db.Column(db.Boolean())
 
     category = db.relationship('Categories', back_populates='transaction')
+    account = db.relationship('Accounts', back_populates='transactions')
 
     def __init__(self, user_id, category_id, account_id, amount, description, date, start_date, end_date, frequency, active ):
 
@@ -43,6 +45,7 @@ class TransactionSchema(ma.Schema):
         fields = ['transaction_id', "user_id", 'category', 'account_id', 'amount', "description", "date", "start_date", "end_date", "frequency", "active"]
 
     user = ma.fields.Nested(UsersSchema, exclude=("transaction",))
+    account = ma.fields.Nested(AccountsSchema)
 
 transaction_schema = TransactionSchema()
 transactions_schema = TransactionSchema(many=True)

@@ -16,6 +16,8 @@ class Accounts(db.Model):
     balance = db.Column(db.Integer(), nullable=False)
     active = db.Column(db.Boolean())
 
+    transactions = db.relationship('Transactions', back_populates='account')
+
     def __init__(self, user_id, account_name, type_of_money, balance, active):
 
         self.user_id = user_id

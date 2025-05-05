@@ -88,37 +88,17 @@ def validate_session():
     }), 200
 
 @auth_with_return
-def auth_check_login():
-    auth_token = request.cookies.get('auth_token')
-    
-    if not auth_token:
-        return jsonify({"authenticated": False}), 401
-    
-    auth_info = db.session.query(AuthTokens).filter(
-        AuthTokens.auth_token == auth_token,
-        AuthTokens.expiration > datetime.now()
-    ).first()
-    
-    if not auth_info:
-        return jsonify({"authenticated": False}), 401
-        
-    user_data = db.session.query(Users).filter(Users.user_id == auth_info.user_id).first()
-    
-    if not user_data:
-        return jsonify({"authenticated": False}), 401
+def auth_token_remove(auth_info):
+    auth_data = db.session.query(AuthTokens).filter(AuthTokens.user_id == auth_info.user_id).first()
 
-    return jsonify({
-        "message": "success",
-        "results": auth_token_schema.dump(auth_info), 
-    }), 200
+    if auth_data:
+        db.session.delete(auth_data)
+        db.session.commit()
 
-def auth_token_remove(request, auth_info):
-    db.session.delete(auth_info)
-    db.session.commit()
+    response = make_response(jsonify({"message": "User logged out"}), 200)
+    response.set_cookie("auth_token", "", expires=0, httponly=True, secure=True, samesite="None")
 
-    response = make_response("auth_token", expires=0, httponly=True, secure=True, samesite="None")
-    
-    return jsonify({"message" : "user logged out"}), 200
+    return response
 
 @auth
 def delete_user_token(user_id):
