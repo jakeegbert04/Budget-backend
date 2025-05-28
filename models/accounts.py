@@ -12,7 +12,7 @@ class Accounts(db.Model):
     account_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("Users.user_id"), nullable=False)
     account_name = db.Column(db.String(), nullable=False)
-    type_of_money = db.Column(db.String())
+    type_of_money = db.Column( db.Enum("Cash", "Credit", "Debit", "Savings", name="type_of_money_enum"), nullable=False)
     balance = db.Column(db.Integer(), nullable=False)
     active = db.Column(db.Boolean())
 

@@ -42,7 +42,7 @@ class Transactions(db.Model):
 
 class TransactionSchema(ma.Schema):
     class Meta:
-        fields = ['transaction_id', "user_id", 'category', 'account_id', 'amount', "description", "date", "start_date", "end_date", "frequency", "active"]
+        fields = ['transaction_id', "user_id", 'category', 'account', 'amount', "description", "date", "start_date", "end_date", "frequency", "active"]
 
     user = ma.fields.Nested(UsersSchema, exclude=("transaction",))
     account = ma.fields.Nested(AccountsSchema)
