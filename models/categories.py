@@ -7,11 +7,12 @@ from models.transactions import TransactionSchema
 from db import db
 
 class Categories(db.Model):
-    __tablename__ = "Categories"
+    __tablename__ = 'Categories'
 
     category_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('Users.user_id'), nullable=False)
     amount = db.Column(db.String(), nullable=False )
-    category_name = db.Column(db.String(), nullable=False)
+    name = db.Column(db.String(), nullable=False)
     color = db.Column(db.String())
     start_date = db.Column(db.String(), nullable=False, default=lambda: datetime.today().strftime('%Y-%m-%d'))
     end_date = db.Column(db.String())
@@ -19,22 +20,23 @@ class Categories(db.Model):
 
     transaction = db.relationship('Transactions', back_populates='category')
 
-    def __init__(self, amount, category_name, color, start_date, end_date, active):
+    def __init__(self, user_id, amount, name, color, start_date, end_date, active):
+        self.user_id = user_id
         self.amount = amount
-        self.category_name = category_name
+        self.name = name
         self.color= color
         self.start_date = start_date
         self.end_date = end_date
         self.active = active
 
     def new_category():
-        return Categories( "", "", "", "", "", True)
+        return Categories( '', '', '', '', '', '', True)
 
 class CategoriesSchema(ma.Schema):
     class Meta:
-        fields = ['category_id', 'amount', 'category_name', 'color', 'start_date', 'end_date', "transaction", "active"]
+        fields = ['category_id', 'user_id', 'amount', 'name', 'color', 'start_date', 'end_date', 'transaction', 'active']
         
-    transaction = ma.fields.Nested("TransactionSchema", many=True, exclude=("category",))
+    transaction = ma.fields.Nested('TransactionSchema', many=True, exclude=('category',))
         
 category_schema = CategoriesSchema()
 categories_schema = CategoriesSchema(many=True)
