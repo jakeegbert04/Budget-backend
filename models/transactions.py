@@ -4,6 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 
 from models.users import UsersSchema
 from models.accounts import AccountsSchema
+from models.categories import CategoriesSchema
 from db import db
 
 class Transactions(db.Model):
@@ -16,15 +17,16 @@ class Transactions(db.Model):
     amount = db.Column(db.String(), nullable=False)
     description = db.Column(db.String())
     date = db.Column(db.DateTime, nullable=False)
-    start_date = db.Column(db.DateTime, nullable=False)
-    end_date = db.Column(db.DateTime, nullable=False)
+    start_date = db.Column(db.DateTime, nullable=True)
+    end_date = db.Column(db.DateTime, nullable=True)
     frequency = db.Column(db.String())
+    indefinitely = db.Column(db.Boolean())
     active = db.Column(db.Boolean())
 
     category = db.relationship('Categories', back_populates='transaction')
     account = db.relationship('Accounts', back_populates='transactions')
 
-    def __init__(self, user_id, category_id, account_id, amount, description, date, start_date, end_date, frequency, active ):
+    def __init__(self, user_id, category_id, account_id, amount, description, date, start_date, end_date, frequency, indefinitely, active ):
 
         self.user_id = user_id
         self.category_id = category_id
@@ -35,17 +37,19 @@ class Transactions(db.Model):
         self.start_date = start_date
         self.end_date = end_date
         self.frequency = frequency
+        self.indefinitely, indefinitely
         self.active = active
 
     def new_transaction():
-        return Transactions( "", "", "", "", "", "", "", "", "", True)
+        return Transactions( "", "", "", "", "", "", "", "", "", False, True)
 
 class TransactionSchema(ma.Schema):
     class Meta:
-        fields = ['transaction_id', "user_id", 'category', 'account', 'amount', "description", "date", "start_date", "end_date", "frequency", "active"]
+        fields = ['transaction_id', "user_id", 'category', 'account', 'amount', "description", "date", "start_date", "end_date", "frequency", "indefinitely" "active"]
 
     user = ma.fields.Nested(UsersSchema, exclude=("transaction",))
     account = ma.fields.Nested(AccountsSchema)
+    category = ma.fields.Nested(CategoriesSchema, exclude=("transaction",))
 
 transaction_schema = TransactionSchema()
 transactions_schema = TransactionSchema(many=True)

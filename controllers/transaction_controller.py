@@ -1,10 +1,10 @@
-from flask import request, jsonify
-from flask_bcrypt import generate_password_hash
+from flask import jsonify
 
 from db import db
 from models.transactions import transaction_schema, transactions_schema, Transactions
-from models.users import Users
 from models.categories import Categories
+from models.accounts import Accounts
+from models.users import Users
 from util.reflection import populate_object
 from lib.authenticate import auth
 
@@ -14,22 +14,28 @@ def add_transaction(request):
 
     user_id = req_data["user_id"]
     category_id = req_data["category_id"]
+    account_id = req_data["account_id"]
     amount = req_data["amount"]
 
     if not req_data:
         return jsonify({"message" : "please enter all required fields"}), 400
     
-    user_id_qury = db.session.query(Users).filter(Users.user_id == user_id).first()
+    user_query = db.session.query(Users).filter(Users.user_id == user_id).first()
 
-    if not user_id_qury:
+    if not user_query:
         return jsonify({"message" : "user not found"}), 401
     
-    category_id_query = db.session.query(Categories).filter(Categories.category_id == category_id).first()
+    category_query = db.session.query(Categories).filter(Categories.category_id == category_id).first()
 
-    if not category_id_query:
+    if not category_query:
         return jsonify({"message" : "category not found"}), 401
     
-    category_id_query.amount = int(category_id_query.amount) - int(amount)
+    account_query = db.session.query(Accounts).filter(Accounts.account_id == account_id).first()
+
+    if not account_query:
+        return jsonify({"message": "account not found"})
+    
+    category_query.amount = int(category_query.amount) - int(amount)
 
     new_transaction = Transactions.new_transaction()
 
