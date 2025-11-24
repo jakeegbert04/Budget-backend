@@ -14,7 +14,7 @@ class Accounts(db.Model):
     name = db.Column(db.String(), nullable=False)
     account_type = db.Column( db.Enum('cash', 'credit', 'debit', 'savings', name='account_type_enum'), nullable=False)
     balance = db.Column(db.Integer(), nullable=False)
-    active = db.Column(db.Boolean())
+    active = db.Column(db.Boolean(), default=True)
 
     transactions = db.relationship('Transactions', back_populates='account')
 
@@ -23,7 +23,7 @@ class Accounts(db.Model):
         self.user_id = user_id
         self.name = name
         self.account_type = account_type
-        self.balance= balance
+        self.balance = balance
         self.active = active
 
     def new_account():

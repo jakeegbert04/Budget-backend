@@ -1,6 +1,7 @@
 import marshmallow as ma
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
+from datetime import datetime, timezone
 
 from models.users import UsersSchema
 from models.accounts import AccountsSchema
@@ -17,11 +18,11 @@ class Transactions(db.Model):
     amount = db.Column(db.String(), nullable=False)
     description = db.Column(db.String())
     date = db.Column(db.DateTime, nullable=False)
-    start_date = db.Column(db.DateTime, nullable=True)
+    start_date = db.Column(db.Date(), nullable=False, default=lambda: datetime.now(timezone.utc).date())
     end_date = db.Column(db.DateTime, nullable=True)
     frequency = db.Column(db.String())
-    indefinitely = db.Column(db.Boolean())
-    active = db.Column(db.Boolean())
+    indefinitely = db.Column(db.Boolean(), default=False)
+    active = db.Column(db.Boolean(), default=True)
 
     category = db.relationship('Categories', back_populates='transaction')
     account = db.relationship('Accounts', back_populates='transactions')
@@ -37,7 +38,7 @@ class Transactions(db.Model):
         self.start_date = start_date
         self.end_date = end_date
         self.frequency = frequency
-        self.indefinitely, indefinitely
+        self.indefinitely = indefinitely
         self.active = active
 
     def new_transaction():
@@ -45,7 +46,7 @@ class Transactions(db.Model):
 
 class TransactionSchema(ma.Schema):
     class Meta:
-        fields = ['transaction_id', "user_id", 'category', 'account', 'amount', "description", "date", "start_date", "end_date", "frequency", "indefinitely" "active"]
+        fields = ['transaction_id', "user_id", 'category', 'account', 'amount', "description", "date", "start_date", "end_date", "frequency", "indefinitely", "active"]
 
     user = ma.fields.Nested(UsersSchema, exclude=("transaction",))
     account = ma.fields.Nested(AccountsSchema)

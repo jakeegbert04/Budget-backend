@@ -1,7 +1,7 @@
 import marshmallow as ma
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
-from datetime import datetime
+from datetime import datetime, timezone
 
 from db import db
 
@@ -13,9 +13,10 @@ class Categories(db.Model):
     amount = db.Column(db.String(), nullable=False )
     name = db.Column(db.String(), nullable=False)
     color = db.Column(db.String())
-    start_date = db.Column(db.String(), nullable=False, default=lambda: datetime.today().strftime('%Y-%m-%d'))
+    start_date = db.Column(db.Date(), nullable=False, default=lambda: datetime.now(timezone.utc).date())
     end_date = db.Column(db.String())
-    active = db.Column(db.Boolean())
+    indefinitely = db.Column(db.Boolean(), default=False)
+    active = db.Column(db.Boolean(), default=True)
 
     transaction = db.relationship('Transactions', back_populates='category')
 
