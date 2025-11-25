@@ -15,18 +15,8 @@ class Roles(db.Model):
 
     users = db.relationship("Users", secondary=roles_users_association_table, back_populates="roles")
 
-    def __init__(self, name, active=True):
-        self.name = name
-        self.active = active
-
-    def get_new_role():
-        return Roles("", True)
-
-
 class RolesSchema(ma.Schema):
     class Meta:
         fields = ['role_id', 'name', 'active']
 
-
-role_schema = RolesSchema()
-roles_schema = RolesSchema(many=True)
+Roles.schema = RolesSchema()

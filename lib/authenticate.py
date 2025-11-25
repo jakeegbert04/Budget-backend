@@ -1,27 +1,18 @@
-import functools
 from flask import jsonify, request
 from datetime import datetime
-from uuid import UUID
-
 from db import db
+import functools
+
+from util.validate_uuid import validate_uuid4
 from models.auth_tokens import AuthTokens
 
 
-def validate_uuid4(uuid_string):
-    try:
-        UUID(uuid_string, version=4)
-        return True
-    except:
-        return False
-
-def validate_token(req=None):
-    if not req:
-        req = request
-
-    auth_token = req.headers.get('auth_token')
+def validate_token():
+    """Validate token from request headers or cookies"""
+    auth_token = request.headers.get('auth_token')
 
     if not auth_token:
-        auth_token = req.cookies.get('auth_token')
+        auth_token = request.cookies.get('auth_token')
 
     if not auth_token or not validate_uuid4(auth_token):
         return False
@@ -39,7 +30,7 @@ def fail_response():
 def auth(func):
     @functools.wraps(func)
     def wrapper_auth_return(*args, **kwargs):
-        auth_info = validate_token(args[0] if args else None)
+        auth_info = validate_token()  # Just call it directly, no arguments
 
         if auth_info:
             return func(*args, **kwargs)
@@ -50,10 +41,10 @@ def auth(func):
 def auth_with_return(func):
     @functools.wraps(func)
     def wrapper_auth_return(*args, **kwargs):
-        auth_token_record = validate_token(args[0] if args else None)
+        auth_token_record = validate_token()  # Just call it directly, no arguments
 
         if auth_token_record:
-            kwargs["auth_info"] = auth_token_record.user  # <-- Return the user, not the token
+            kwargs["auth_info"] = auth_token_record.user
             return func(*args, **kwargs)
         else:
             return fail_response()

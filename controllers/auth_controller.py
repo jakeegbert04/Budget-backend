@@ -3,7 +3,7 @@ from flask import jsonify, request, make_response
 from flask_bcrypt import check_password_hash
 
 from db import db
-from models.users import Users, user_schema
+from models.users import Users
 from datetime import datetime, timedelta
 from models.auth_tokens import AuthTokens, auth_token_schema
 from lib.authenticate import auth, auth_with_return
@@ -49,7 +49,14 @@ def auth_token():
         
         auth_token_data = auth_token_schema.dump(new_token)
 
-    response = make_response({"message": "Auth Success", "results": {"auth_info": auth_token_data, "user_info": user_schema.dump(user_data)}}, 201)
+    # Use the schema from the class
+    response = make_response({
+        "message": "Auth Success", 
+        "results": {
+            "auth_info": auth_token_data, 
+            "user_info": Users.schema.dump(user_data)
+        }
+    }, 201)
     
     response.set_cookie(
         "auth_token", 
@@ -65,7 +72,7 @@ def auth_token():
 
 def validate_session():
     retrieved_cookie = request.cookies.get('auth_token')
-    print("retrieved_cookie", retrieved_cookie)
+    
     if not retrieved_cookie:
         return jsonify({"authenticated": False, "message": "No valid session"}), 200
 
@@ -84,7 +91,7 @@ def validate_session():
 
     return jsonify({
         "message": "Session Valid", 
-        "results": user_schema.dump(user_data)
+        "results": Users.schema.dump(user_data)
     }), 200
 
 @auth_with_return
@@ -102,9 +109,9 @@ def auth_token_remove(auth_info):
 
 @auth
 def delete_user_token(user_id):
-    auth_data = db.session.query(AuthTokens).filter(AuthTokens.user.user_id == user_id).first()
+    auth_data = db.session.query(AuthTokens).filter(AuthTokens.user_id == user_id).first()
     
     if auth_data:
         db.session.delete(auth_data)
         db.session.commit()
-    return jsonify({"message" : "deleted auth token"})
+    return jsonify({"message": "deleted auth token"})
