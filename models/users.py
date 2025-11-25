@@ -36,5 +36,4 @@ class UsersSchema(ma.Schema):
         fields = ['user_id', "username", 'first_name', 'last_name', 'email', "active", "roles"]
     roles = ma.fields.List(ma.fields.String())
 
-user_schema = UsersSchema()
-users_schema = UsersSchema(many=True)
+Users.schema = UsersSchema()

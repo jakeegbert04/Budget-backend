@@ -27,6 +27,4 @@ class RolesSchema(ma.Schema):
     class Meta:
         fields = ['role_id', 'name', 'active']
 
-
-role_schema = RolesSchema()
-roles_schema = RolesSchema(many=True)
+Roles.schema = RolesSchema()

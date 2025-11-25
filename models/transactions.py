@@ -27,23 +27,6 @@ class Transactions(db.Model):
     category = db.relationship('Categories', back_populates='transaction')
     account = db.relationship('Accounts', back_populates='transactions')
 
-    def __init__(self, user_id, category_id, account_id, amount, description, date, start_date, end_date, frequency, indefinitely, active ):
-
-        self.user_id = user_id
-        self.category_id = category_id
-        self.account_id = account_id
-        self.amount = amount
-        self.description = description
-        self.date = date
-        self.start_date = start_date
-        self.end_date = end_date
-        self.frequency = frequency
-        self.indefinitely = indefinitely
-        self.active = active
-
-    def new_transaction():
-        return Transactions( "", "", "", "", "", "", "", "", "", False, True)
-
 class TransactionSchema(ma.Schema):
     class Meta:
         fields = ['transaction_id', "user_id", 'category', 'account', 'amount', "description", "date", "start_date", "end_date", "frequency", "indefinitely", "active"]
@@ -52,5 +35,4 @@ class TransactionSchema(ma.Schema):
     account = ma.fields.Nested(AccountsSchema)
     category = ma.fields.Nested(CategoriesSchema, exclude=("transaction",))
 
-transaction_schema = TransactionSchema()
-transactions_schema = TransactionSchema(many=True)
+Transactions.schema = TransactionSchema()

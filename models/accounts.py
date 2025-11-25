@@ -18,22 +18,10 @@ class Accounts(db.Model):
 
     transactions = db.relationship('Transactions', back_populates='account')
 
-    def __init__(self, user_id, name, account_type, balance, active):
-
-        self.user_id = user_id
-        self.name = name
-        self.account_type = account_type
-        self.balance = balance
-        self.active = active
-
-    def new_account():
-        return Accounts( '', '', '', '', True)
-
 class AccountsSchema(ma.Schema):
     class Meta:
         fields = ['account_id', 'user_id', 'name', 'account_type', 'balance', 'active']
 
     user = ma.fields.Nested(UsersSchema)
 
-account_schema = AccountsSchema()
-accounts_schema = AccountsSchema(many=True)
+Accounts.schema = AccountsSchema()
