@@ -20,16 +20,6 @@ class Users(db.Model):
     roles = db.relationship("Roles", secondary=roles_users_association_table, back_populates="users")
     auth_tokens = db.relationship('AuthTokens', back_populates='user', cascade="all, delete")
 
-    def __init__(self, username, first_name, last_name, email, password, active):
-        self.username = username
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.password = password
-        self.active = active
-
-    def new_user():
-        return Users( "", "", "", "", "", True)
 
 class UsersSchema(ma.Schema):
     class Meta:

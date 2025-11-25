@@ -91,7 +91,7 @@ def validate_session():
 
     return jsonify({
         "message": "Session Valid", 
-        "results": Users.schema.dump(user_data)  # Use class schema
+        "results": Users.schema.dump(user_data)
     }), 200
 
 @auth_with_return
@@ -109,7 +109,6 @@ def auth_token_remove(auth_info):
 
 @auth
 def delete_user_token(user_id):
-    # Fixed: was AuthTokens.user.user_id, should be AuthTokens.user_id
     auth_data = db.session.query(AuthTokens).filter(AuthTokens.user_id == user_id).first()
     
     if auth_data:
