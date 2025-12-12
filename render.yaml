@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: flask-backend
+    runtime: python
+    region: oregon # or ohio/frankfurt/etc.
+    plan: free # or starter/standard
+    buildCommand: pip install pipenv && pipenv install --system --ignore-pipfile
+    startCommand: python app.py
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12
+      - key: FLASK_ENV
+        value: production
+      # Add your secret keys here, or set them manually in Render dashboard
+      # - key: SECRET_KEY
+      #   sync: false
