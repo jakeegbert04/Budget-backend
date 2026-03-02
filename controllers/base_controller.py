@@ -20,7 +20,7 @@ class BaseController:
     @auth
     def add(self):
         post_data = request.form or request.json
-        record = self.model()  # Just create a new instance directly
+        record = self.model()
 
         populate_object(record, post_data)
 

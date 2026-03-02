@@ -3,7 +3,7 @@ from flask import jsonify, request, make_response
 from flask_bcrypt import check_password_hash
 
 from db import db
-from models.users import Users
+from models.users import Users, UsersSchema
 from datetime import datetime, timedelta
 from models.auth_tokens import AuthTokens, auth_token_schema
 from lib.authenticate import auth, auth_with_return
@@ -24,6 +24,7 @@ def auth_token():
     
     fields = ['email', 'password']
     values = {field: token_req.get(field) for field in fields}
+    user_schema = UsersSchema()
 
     for field in fields:
         if not values[field]:
@@ -49,12 +50,11 @@ def auth_token():
         
         auth_token_data = auth_token_schema.dump(new_token)
 
-    # Use the schema from the class
     response = make_response({
         "message": "Auth Success", 
         "results": {
             "auth_info": auth_token_data, 
-            "user_info": Users.schema.dump(user_data)
+            "user_info": user_schema.dump(user_data)
         }
     }, 201)
     

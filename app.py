@@ -16,6 +16,7 @@ from routes.category_routes import category
 from routes.account_routes import account
 from routes.role_routes import role
 from routes.transaction_routes import transaction
+from routes.simple_fin_routes import simple_fin
 
 from lib.demo_data.roles_demo_data import add_roles
 
@@ -49,6 +50,7 @@ def create_app():
     app.register_blueprint(account)
     app.register_blueprint(role)
     app.register_blueprint(transaction)
+    app.register_blueprint(simple_fin)
 
     return app
 
@@ -79,6 +81,7 @@ def create_all(app):
                 last_name=config.su_last_name,
                 email=config.su_email,
                 password=hashed_password,
+                simplefin_access_url=os.getenv("ACCESS_URL"),
                 active=True,
             )
             record.roles.append(super_admin_role)

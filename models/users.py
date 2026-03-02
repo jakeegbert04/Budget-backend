@@ -15,6 +15,7 @@ class Users(db.Model):
     last_name = db.Column(db.String(), nullable=False)
     email = db.Column(db.String(), nullable=False, unique=True)
     password = db.Column(db.String(), nullable=False)
+    simplefin_access_url = db.Column(db.String())
     active = db.Column(db.Boolean(), default=True)
 
     roles = db.relationship("Roles", secondary=roles_users_association_table, back_populates="users")
@@ -23,7 +24,7 @@ class Users(db.Model):
 
 class UsersSchema(ma.Schema):
     class Meta:
-        fields = ['user_id', "username", 'first_name', 'last_name', 'email', "active", "roles"]
+        fields = ['user_id', "username", 'first_name', 'last_name', 'email', 'simplefin_access_url', 'active', "roles"]
     roles = ma.fields.List(ma.fields.String())
 
 Users.schema = UsersSchema()
