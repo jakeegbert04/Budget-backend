@@ -10,7 +10,7 @@ class Categories(db.Model):
 
     category_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('Users.user_id'), nullable=False)
-    amount = db.Column(db.String(), nullable=False )
+    amount = db.Column(db.Integer(), nullable=False )
     name = db.Column(db.String(), nullable=False)
     color = db.Column(db.String())
     start_date = db.Column(db.Date(), nullable=False, default=lambda: datetime.now(timezone.utc).date())
@@ -19,6 +19,7 @@ class Categories(db.Model):
     active = db.Column(db.Boolean(), default=True)
 
     transaction = db.relationship('Transactions', back_populates='category')
+    user = db.relationship('Users', back_populates='categories')
 
 class CategoriesSchema(ma.Schema):
     class Meta:

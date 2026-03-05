@@ -10,3 +10,7 @@ def get_accounts():
 @simple_fin.route("/bank/transactions", methods=["PUT"])
 def get_transactions():
     return simple_fin_controller.get_transactions()
+
+@simple_fin.route("/sort/transactions", methods=["POST"])
+def sort_transactions():
+    return simple_fin_controller.sort_transactions()

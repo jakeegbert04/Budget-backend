@@ -6,6 +6,7 @@ from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from db import db, init_db
 import config
+from datetime import datetime
 
 from models.roles import Roles
 from models.users import Users
@@ -19,6 +20,7 @@ from routes.transaction_routes import transaction
 from routes.simple_fin_routes import simple_fin
 
 from lib.demo_data.roles_demo_data import add_roles
+from lib.gemini_service import init_gemini
 
 ma = Marshmallow()
 bcrypt = Bcrypt()
@@ -40,6 +42,7 @@ def create_app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     init_db(app, db)
+    init_gemini(app)
     CORS(app, supports_credentials=True)
     ma.init_app(app)
     bcrypt.init_app(app)
@@ -82,6 +85,7 @@ def create_all(app):
                 email=config.su_email,
                 password=hashed_password,
                 simplefin_access_url=os.getenv("ACCESS_URL"),
+                last_sign_in=datetime.utcnow(),
                 active=True,
             )
             record.roles.append(super_admin_role)
